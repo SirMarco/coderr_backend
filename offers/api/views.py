@@ -56,9 +56,15 @@ class OffersListView(GenericAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = self.get_serializer(data=request.data)
+        data = request.data.copy() 
+        details = data.get("details", [])
+        if details:
+            data["min_price"] = min(detail["price"] for detail in details)
+            data["min_delivery_time"] = min(detail["delivery_time_in_days"] for detail in details)
+
+        serializer = self.get_serializer(data=data)
         if serializer.is_valid():
-            serializer.save()
+            serializer.save(user=request.user)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

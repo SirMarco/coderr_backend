@@ -30,9 +30,9 @@ class OrderListCreateView(APIView):
 
 
 class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
-    permission_classes = [IsAuthenticated]
 
     def patch(self, request, *args, **kwargs):
         order = get_object_or_404(Order, pk=kwargs["pk"])

@@ -29,13 +29,13 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "created_at",
         ]
 
-    # def to_representation(self, instance):
-    #     representation = super().to_representation(instance)
-    #     if instance.file:
-    #         representation["file"] = instance.file.url
-    #     else:
-    #         representation["file"] = None
-    #     return representation
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.file:
+            representation['file'] = f"media/{instance.file.name}" 
+        else:
+            representation['file'] = None
+        return representation
 
     def update(self, instance, validated_data):
         user_data = validated_data.pop("user", {})
@@ -85,6 +85,14 @@ class UserProfileBusinessListSerializer(serializers.ModelSerializer):
             "first_name": obj.user.first_name,
             "last_name": obj.user.last_name,
         }
+    
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+        if instance.file:
+            representation['file'] = f"media/{instance.file.name}" 
+        else:
+            representation['file'] = None
+        return representation
 
 
 class UserProfileCustomerListSerializer(serializers.ModelSerializer):
@@ -96,6 +104,14 @@ class UserProfileCustomerListSerializer(serializers.ModelSerializer):
         model = UserProfile
         fields = ["user", "file", "uploaded_at", "type"]
 
+    def to_representation(self, instance):
+            representation = super().to_representation(instance)
+            if instance.file:
+                representation['file'] = f"media/{instance.file.name}" 
+            else:
+                representation['file'] = None
+            return representation
+    
     def get_user(self, obj):
         return {
             "pk": obj.user.pk,

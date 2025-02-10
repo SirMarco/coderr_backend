@@ -44,14 +44,13 @@ class OfferDetailSerializer(serializers.ModelSerializer):
 
 
 class OfferSerializer(serializers.ModelSerializer):
-    details = OfferDetailSerializer(many=True)
+    details = OfferDetailSerializer(many=True, required=False)
     user_details = UserDetailSerializer(source="user", read_only=True)
 
     class Meta:
         model = Offer
         fields = [
             "id",
-            "user",
             "title",
             "image",
             "description",
@@ -75,13 +74,16 @@ class OfferSerializer(serializers.ModelSerializer):
         return value
 
     def create(self, validated_data):
-        details_data = validated_data.pop("details")
-        offer = Offer.objects.create(**validated_data)
+        user = validated_data.pop("user", None)
+        details_data = validated_data.pop("details", [])
+
+        offer = Offer.objects.create(user=user, **validated_data)
 
         for detail_data in details_data:
             OfferDetail.objects.create(offer=offer, **detail_data)
 
         return offer
+
 
     def update(self, instance, validated_data):
         details_data = validated_data.pop("details", None)

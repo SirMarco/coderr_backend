@@ -1,4 +1,6 @@
 # Coderr Django Projekt
+    Coderr_frontend_v1.1.0
+    
 
 ## Einführung
 Coderr ist eine Plattform, auf der du deine Skills als Freelancer anbieten oder passende Dienstleistungen buchen kannst. Egal, ob du Programmierer, Designer oder Texter bist – mit Coderr kannst du Aufträge verwalten, Bestellungen abwickeln und Bewertungen sammeln. 
