@@ -46,11 +46,13 @@ class OfferDetailSerializer(serializers.ModelSerializer):
 class OfferSerializer(serializers.ModelSerializer):
     details = OfferDetailSerializer(many=True, required=False)
     user_details = UserDetailSerializer(source="user", read_only=True)
+    user = serializers.SerializerMethodField()
 
     class Meta:
         model = Offer
         fields = [
             "id",
+            "user",
             "title",
             "image",
             "description",
@@ -61,6 +63,9 @@ class OfferSerializer(serializers.ModelSerializer):
             "min_delivery_time",
             "user_details",
         ]
+
+    def get_user(self, obj):
+        return obj.user.id  
 
     def validate_details(self, value):
         request = self.context.get("request")

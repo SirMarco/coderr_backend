@@ -47,23 +47,23 @@ class OrderSerializer(serializers.ModelSerializer):
                     {"error": "Nur Kunden können Bestellungen erstellen."}
                 )
 
-        #     offer_detail_id = data.get("offer_detail_id")
-        #     if not offer_detail_id:
-        #         raise serializers.ValidationError(
-        #             {"error": "Offer detail ID ist notwendig."}
-        #         )
+            offer_detail_id = data.get("offer_detail_id")
+            if not offer_detail_id:
+                raise serializers.ValidationError(
+                    {"error": "Offer detail ID ist notwendig."}
+                )
 
-        #     try:
-        #         offer_detail = OfferDetail.objects.select_related("offer").get(
-        #             id=offer_detail_id
-        #         )
-        #         data["offer_detail"] = offer_detail
-        #     except OfferDetail.DoesNotExist:
-        #         raise serializers.ValidationError(
-        #             {"error": "Das Angebotsdetail existiert nicht."}
-        #         )
+            try:
+                offer_detail = OfferDetail.objects.select_related("offer").get(
+                    id=offer_detail_id
+                )
+                data["offer_detail"] = offer_detail
+            except OfferDetail.DoesNotExist:
+                 raise serializers.ValidationError(
+                     {"error": "Das Angebotsdetail existiert nicht."}
+                 )
 
-        # return data
+        return data
 
     def create(self, validated_data):
         offer_detail = validated_data.pop("offer_detail")
