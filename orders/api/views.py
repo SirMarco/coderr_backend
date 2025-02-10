@@ -10,6 +10,11 @@ from rest_framework.generics import RetrieveUpdateDestroyAPIView
 
 
 class OrderListCreateView(APIView):
+    """
+    Erlaubt es authentifizierten Nutzern, ihre Bestellungen aufzulisten und neue Bestellungen zu erstellen.
+    - `GET`: Listet alle Bestellungen des Nutzers, sortiert nach Erstellungsdatum absteigend.
+    - `POST`: Ermöglicht das Erstellen einer neuen Bestellung.
+    """    
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
@@ -30,6 +35,12 @@ class OrderListCreateView(APIView):
 
 
 class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
+    """
+    Erlaubt es authentifizierten Nutzern und spezifisch berechtigten Nutzern, Bestellungen zu bearbeiten oder zu löschen.
+    - `GET`: Ruft Details einer spezifischen Bestellung ab.
+    - `PATCH`: Aktualisiert eine Bestellung, wenn der Nutzer berechtigt ist.
+    - `DELETE`: Löscht eine Bestellung, wenn der Nutzer berechtigt ist.
+    """    
     permission_classes = [IsAuthenticated]
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
@@ -73,6 +84,10 @@ class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
 
 class OrderCountView(APIView):
+    """
+    Gibt die Anzahl der in Bearbeitung befindlichen Bestellungen eines spezifischen Geschäftsnutzers zurück.
+    - `GET`: Zählt die in Bearbeitung befindlichen Bestellungen eines Geschäftsnutzers.
+    """    
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
@@ -90,6 +105,10 @@ class OrderCountView(APIView):
 
 
 class CompletedOrderCountView(APIView):
+    """
+    Gibt die Anzahl der abgeschlossenen Bestellungen eines spezifischen Geschäftsnutzers zurück.
+    - `GET`: Zählt die abgeschlossenen Bestellungen eines Geschäftsnutzers.
+    """    
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):

@@ -16,6 +16,11 @@ class OfferPagination(PageNumberPagination):
 
 
 class OffersListView(GenericAPIView):
+    """
+    Listet Angebote auf und ermöglicht das Erstellen neuer Angebote.
+    Unterstützt Filtern, Sortieren und Suchen in den Angeboten.
+    Benutzt die `OfferPagination`-Klasse zur Paginierung der Ergebnisse.
+    """    
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     pagination_class = OfferPagination
@@ -71,11 +76,19 @@ class OffersListView(GenericAPIView):
 
 
 class OfferDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    API-Endpoint für das Abrufen, Aktualisieren oder Löschen eines einzelnen Angebots.
+    Benutzt das `OfferSerializer` für die Serialisierung der Angebotsdaten.
+    """    
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
 
 class OffersDetailView(APIView):
+    """
+    API-Endpoint für das Abrufen der Detailinformationen eines spezifischen Angebots.
+    Holt das entsprechende Angebot über die `get_object_or_404`-Methode, um sicherzustellen, dass es existiert.
+    """    
     def get(self, request, pk):
         offer_detail = get_object_or_404(OfferDetail, pk=pk)
         serializer = OfferDetailSerializer(offer_detail, context={"request": request})

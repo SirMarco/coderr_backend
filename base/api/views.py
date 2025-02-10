@@ -8,6 +8,12 @@ from django.contrib.auth.models import User
 
 
 class BaseInfoView(APIView):
+    """
+    API-Endpoint, der allgemeine Statistiken zur Plattform zurückgibt.
+
+    Erlaubte Methode:
+    - `GET`: Gibt eine Zusammenfassung der wichtigsten Daten der Plattform zurück.
+    """    
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):

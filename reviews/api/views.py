@@ -9,6 +9,12 @@ from rest_framework import status
 
 
 class ReviewListCreateView(ListCreateAPIView):
+    """
+    API-Endpoint zur Auflistung aller Bewertungen oder zur Erstellung neuer Bewertungen.
+    - `GET`: Listet alle Bewertungen auf. Unterstützt Filterung nach `business_user_id` und `reviewer_id`.
+    - `POST`: Ermöglicht Kunden das Erstellen neuer Bewertungen.
+    Die Erstellung ist auf Nutzer beschränkt, die als 'customer' im Profil typisiert sind.
+    """    
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer
 
@@ -26,6 +32,13 @@ class ReviewListCreateView(ListCreateAPIView):
 
 
 class ReviewDetailView(RetrieveUpdateDestroyAPIView):
+    """
+    API-Endpoint für den Zugriff auf spezifische Bewertungen und deren Bearbeitung oder Löschung.
+    - `GET`: Ruft eine spezifische Bewertung ab.
+    - `PATCH`: Erlaubt die Aktualisierung einer Bewertung, sofern der Nutzer der ursprüngliche Verfasser oder ein Admin ist.
+    - `DELETE`: Erlaubt das Löschen einer Bewertung unter denselben Bedingungen.
+    Zugriff ist auf authentifizierte Nutzer beschränkt.
+    """    
     permission_classes = [IsAuthenticated]
     queryset = Review.objects.all()
     serializer_class = ReviewSerializer

@@ -1,5 +1,6 @@
 # Coderr Django Projekt
     Coderr_frontend_v1.1.0
+    Guest Login wie in der config.js
     
 
 ## Einführung
