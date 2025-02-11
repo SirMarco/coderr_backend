@@ -8,6 +8,7 @@ from rest_framework import status
 from .models import Offer, OfferDetail
 from .serializers import OfferSerializer, OfferDetailSerializer
 from rest_framework.pagination import PageNumberPagination
+from user_auth_app.permissions import IsBusinessUser
 
 
 class OfferPagination(PageNumberPagination):
@@ -15,12 +16,14 @@ class OfferPagination(PageNumberPagination):
     page_size_query_param = "page_size"
 
 
-class OffersListView(GenericAPIView):
+class OffersListCreateView(GenericAPIView):
     """
-    Listet Angebote auf und ermöglicht das Erstellen neuer Angebote.
-    Unterstützt Filtern, Sortieren und Suchen in den Angeboten.
-    Benutzt die `OfferPagination`-Klasse zur Paginierung der Ergebnisse.
-    """    
+    Lists offers and allows for the creation of new offers.
+    Supports filtering, sorting, and searching within the offers.
+    Uses the `OfferPagination` class for paginating the results.
+    """
+
+    permission_classes = [IsBusinessUser]
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
     pagination_class = OfferPagination
@@ -77,18 +80,21 @@ class OffersListView(GenericAPIView):
 
 class OfferDetailView(RetrieveUpdateDestroyAPIView):
     """
-    API-Endpoint für das Abrufen, Aktualisieren oder Löschen eines einzelnen Angebots.
-    Benutzt das `OfferSerializer` für die Serialisierung der Angebotsdaten.
-    """    
+    API endpoint for retrieving, updating, or deleting a single offer.
+    Uses the `OfferSerializer` for serializing the offer data.
+    """
+
+    permission_classes = [IsBusinessUser]
     queryset = Offer.objects.all()
     serializer_class = OfferSerializer
 
 
 class OffersDetailView(APIView):
     """
-    API-Endpoint für das Abrufen der Detailinformationen eines spezifischen Angebots.
-    Holt das entsprechende Angebot über die `get_object_or_404`-Methode, um sicherzustellen, dass es existiert.
-    """    
+    API endpoint for retrieving the detailed information of a specific offer.
+    Fetches the corresponding offer using the `get_object_or_404` method to ensure it exists.
+    """
+
     def get(self, request, pk):
         offer_detail = get_object_or_404(OfferDetail, pk=pk)
         serializer = OfferDetailSerializer(offer_detail, context={"request": request})

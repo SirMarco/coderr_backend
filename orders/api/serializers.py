@@ -4,6 +4,10 @@ from offers.api.models import OfferDetail
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """
+    A serializer for the Order model that manages order serialization and various operational logics such as validation and order creation.
+    It ensures that only authorized users can create orders and maintain data integrity throughout the order lifecycle.
+    """
     offer_detail_id = serializers.IntegerField(write_only=True, required=False)
 
     class Meta:
@@ -38,19 +42,22 @@ class OrderSerializer(serializers.ModelSerializer):
         ]
 
     def validate(self, data):
+        """
+        Validates the incoming data to ensure that only customers can create orders and that an 'offer_detail_id' is provided. Checks user role and existence of the specified offer detail.
+        """
         request = self.context.get("request")
         user = request.user
 
         if not self.instance:
             if getattr(user.profile, "type", None) != "customer":
                 raise serializers.ValidationError(
-                    {"error": "Nur Kunden können Bestellungen erstellen."}
+                    {"detail": "Nur Kunden können Bestellungen erstellen."}
                 )
 
             offer_detail_id = data.get("offer_detail_id")
             if not offer_detail_id:
                 raise serializers.ValidationError(
-                    {"error": "Offer detail ID ist notwendig."}
+                    {"detail": "Offer detail ID ist notwendig."}
                 )
 
             try:
@@ -60,12 +67,15 @@ class OrderSerializer(serializers.ModelSerializer):
                 data["offer_detail"] = offer_detail
             except OfferDetail.DoesNotExist:
                  raise serializers.ValidationError(
-                     {"error": "Das Angebotsdetail existiert nicht."}
+                     {"detail": "Das Angebotsdetail existiert nicht."}
                  )
 
         return data
 
     def create(self, validated_data):
+        """
+        Creates a new Order instance using the validated data, including retrieving relevant offer details and setting the order's initial status to 'in progress'.
+        """
         offer_detail = validated_data.pop("offer_detail")
         user = self.context["request"].user
 
@@ -83,11 +93,14 @@ class OrderSerializer(serializers.ModelSerializer):
         return order
 
     def update(self, instance, validated_data):
+        """
+        Updates the status of an existing order. Validates that no fields other than 'status' are being updated, maintaining consistency and integrity.
+        """
         if "status" in validated_data:
             instance.status = validated_data["status"]
             instance.save()
         else:
             raise serializers.ValidationError(
-                {"error": "Nur Status darf aktualisiert werden."}
+                {"detail": "Nur Status darf aktualisiert werden."}
             )
         return instance

@@ -4,6 +4,10 @@ from django.contrib.auth.models import User
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    """
+    A serializer for user profile data, linking directly to a User model and extending it with additional profile information.
+    This serializer handles both the representation and update operations for UserProfile instances, ensuring data consistency and validating unique constraints like email addresses.
+    """
     user = serializers.CharField(source="user.pk", read_only=True)
     username = serializers.CharField(source="user.username")
     first_name = serializers.CharField(source="user.first_name")
@@ -30,6 +34,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
         ]
 
     def to_representation(self, instance):
+        """
+        Customizes the representation of the serialized data. Modifies the file field to include a media path if the file exists.
+        """
         representation = super().to_representation(instance)
         if instance.file:
             representation['file'] = f"media/{instance.file.name}" 
@@ -38,6 +45,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return representation
 
     def update(self, instance, validated_data):
+        """
+        Updates the UserProfile and associated User instance based on the provided validated data. Validates email uniqueness
+        outside of the current user instance.
+        """
         user_data = validated_data.pop("user", {})
         new_email = user_data.get("email")
 
@@ -63,6 +74,10 @@ class UserProfileSerializer(serializers.ModelSerializer):
 
 
 class UserProfileBusinessListSerializer(serializers.ModelSerializer):
+    """
+    A serializer for business user profiles, tailored to list views that require specific fields like location, contact, and business type.
+    Includes user data and customizes file representation.
+    """
     user = serializers.SerializerMethodField()
     file = serializers.ImageField(required=False, allow_null=True)
 
@@ -79,6 +94,9 @@ class UserProfileBusinessListSerializer(serializers.ModelSerializer):
         ]
 
     def get_user(self, obj):
+        """
+        Retrieves and serializes basic user information for the associated UserProfile.
+        """
         return {
             "pk": obj.user.pk,
             "username": obj.user.username,
@@ -87,6 +105,9 @@ class UserProfileBusinessListSerializer(serializers.ModelSerializer):
         }
     
     def to_representation(self, instance):
+        """
+        Modifies the default serialization to handle the media file path, ensuring it is correctly formatted or set to None if absent.
+        """
         representation = super().to_representation(instance)
         if instance.file:
             representation['file'] = f"media/{instance.file.name}" 
@@ -96,6 +117,10 @@ class UserProfileBusinessListSerializer(serializers.ModelSerializer):
 
 
 class UserProfileCustomerListSerializer(serializers.ModelSerializer):
+    """
+    A serializer for customer user profiles focusing on providing user identification and uploaded file details,
+    used primarily for listing and retrieving customer-specific data.
+    """
     user = serializers.SerializerMethodField()
     file = serializers.ImageField(required=False, allow_null=True)
     uploaded_at = serializers.DateTimeField(source="user.date_joined", read_only=True)
@@ -113,6 +138,9 @@ class UserProfileCustomerListSerializer(serializers.ModelSerializer):
             return representation
     
     def get_user(self, obj):
+        """
+        Serializes basic user data such as username and names, tailored for customer visibility in listings.
+        """        
         return {
             "pk": obj.user.pk,
             "username": obj.user.username,

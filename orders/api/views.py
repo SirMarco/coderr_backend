@@ -2,20 +2,23 @@ from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework.permissions import AllowAny
 from .models import Order, User
 from .serializers import OrderSerializer
 from django.db.models import Q
 from rest_framework.generics import RetrieveUpdateDestroyAPIView
+from user_auth_app.permissions import OrderPermission
+from user_auth_app.permissions import IsCustomerUser
 
 
 class OrderListCreateView(APIView):
     """
-    Erlaubt es authentifizierten Nutzern, ihre Bestellungen aufzulisten und neue Bestellungen zu erstellen.
-    - `GET`: Listet alle Bestellungen des Nutzers, sortiert nach Erstellungsdatum absteigend.
-    - `POST`: Ermöglicht das Erstellen einer neuen Bestellung.
-    """    
-    permission_classes = [IsAuthenticated]
+    Allows authenticated users to list their orders and create new ones.
+    - `GET`: Lists all of the user's orders, sorted by creation date in descending order.
+    - `POST`: Enables the creation of a new order.
+    """
+   
+    permission_classes = [IsCustomerUser]
 
     def get(self, request):
         user = request.user
@@ -36,12 +39,12 @@ class OrderListCreateView(APIView):
 
 class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
     """
-    Erlaubt es authentifizierten Nutzern und spezifisch berechtigten Nutzern, Bestellungen zu bearbeiten oder zu löschen.
-    - `GET`: Ruft Details einer spezifischen Bestellung ab.
-    - `PATCH`: Aktualisiert eine Bestellung, wenn der Nutzer berechtigt ist.
-    - `DELETE`: Löscht eine Bestellung, wenn der Nutzer berechtigt ist.
-    """    
-    permission_classes = [IsAuthenticated]
+    Allows authenticated users and specifically authorized users to edit or delete orders.
+    - `GET`: Retrieves details of a specific order.
+    - `PATCH`: Updates an order if the user is authorized.
+    - `DELETE`: Deletes an order if the user is authorized.
+    """  
+    permission_classes = [OrderPermission]
     queryset = Order.objects.all()
     serializer_class = OrderSerializer
 
@@ -51,7 +54,7 @@ class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
         if getattr(user.profile, "type", None) != "business":
             return Response(
-                {"error": "Nur Anbieter können Bestellungen ändern."},
+                {"detail": "Nur Anbieter können Bestellungen ändern."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
@@ -73,21 +76,22 @@ class OrderRetrieveUpdateDestroyView(RetrieveUpdateDestroyAPIView):
 
         if not user.is_staff and order.customer_user != user:
             return Response(
-                {"error": "Nur Admins oder der Kunde können eine Bestellung löschen."},
+                {"detail": "Nur Admins oder der Kunde können eine Bestellung löschen."},
                 status=status.HTTP_403_FORBIDDEN,
             )
 
         order.delete()
         return Response(
-            {"message": "Bestellung erfolgreich gelöscht."}, status=status.HTTP_200_OK
+            {"detail": "Bestellung erfolgreich gelöscht."}, status=status.HTTP_200_OK
         )
 
 
 class OrderCountView(APIView):
     """
-    Gibt die Anzahl der in Bearbeitung befindlichen Bestellungen eines spezifischen Geschäftsnutzers zurück.
-    - `GET`: Zählt die in Bearbeitung befindlichen Bestellungen eines Geschäftsnutzers.
-    """    
+    Returns the number of orders in progress for a specific business user.
+    - `GET`: Counts the orders in progress for a business user.
+    """
+
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
@@ -96,7 +100,7 @@ class OrderCountView(APIView):
         business_user = User.objects.filter(pk=business_user_id).first()
         if not business_user:
             return Response(
-                {"error": "Business user not found."}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "Business user not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
         orders = Order.objects.filter(business_user=business_user, status="in_progress")
@@ -106,9 +110,9 @@ class OrderCountView(APIView):
 
 class CompletedOrderCountView(APIView):
     """
-    Gibt die Anzahl der abgeschlossenen Bestellungen eines spezifischen Geschäftsnutzers zurück.
-    - `GET`: Zählt die abgeschlossenen Bestellungen eines Geschäftsnutzers.
-    """    
+    Returns the number of completed orders for a specific business user.
+    - `GET`: Counts the completed orders for a business user.
+    """
     permission_classes = [AllowAny]
 
     def get(self, request, *args, **kwargs):
@@ -117,7 +121,7 @@ class CompletedOrderCountView(APIView):
         business_user = User.objects.filter(pk=business_user_id).first()
         if not business_user:
             return Response(
-                {"error": "Business user not found."}, status=status.HTTP_404_NOT_FOUND
+                {"detail": "Business user not found."}, status=status.HTTP_404_NOT_FOUND
             )
 
         orders = Order.objects.filter(business_user=business_user, status="completed")

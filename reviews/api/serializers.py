@@ -20,13 +20,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         user = self.context["request"].user
         if user.profile.type != "customer":
             raise serializers.ValidationError(
-                {"error": "Nur Kunden können Bewertungen erstellen."}
+                {"detail": "Nur Kunden können Bewertungen erstellen."}
             )
 
         business_user = data.get("business_user")
         if business_user == user:
             raise serializers.ValidationError(
-                {"error": "Sie können sich nicht selbst bewerten."}
+                {"detail": "Sie können sich nicht selbst bewerten."}
             )
 
         return data

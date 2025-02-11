@@ -26,7 +26,7 @@ class ReviewListCreateView(ListCreateAPIView):
         user = self.request.user
         if user.profile.type != "customer":
             raise PermissionDenied(
-                {"error": "Nur Kunden können Bewertungen erstellen."}
+                {"detail": "Nur Kunden können Bewertungen erstellen."}
             )
         serializer.save(reviewer=user)
 

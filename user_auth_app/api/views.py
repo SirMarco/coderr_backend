@@ -8,6 +8,11 @@ from .serializers import RegistrationSerializer, LoginSerializer
 
 
 class CustomLoginView(ObtainAuthToken):
+    """
+    Custom view for user login that extends the default ObtainAuthToken view. This view handles authentication requests,
+    validating the user's credentials, and if valid, returns the user's token along with their username, email, and user ID.
+    If the credentials are invalid, it returns an error response.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):
@@ -28,6 +33,11 @@ class CustomLoginView(ObtainAuthToken):
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class RegistrationView(APIView):
+    """
+    A view for user registration that handles the creation of new user accounts. It validates user data,
+    creates a new user account if the data is valid, and issues a token for the newly created user. Successful registration
+    results in a response containing the user's token, username, email, and user ID. Errors in data submission are returned as error responses.
+    """
     permission_classes = [AllowAny]
 
     def post(self, request):

@@ -5,6 +5,11 @@ from django.contrib.auth import authenticate
 
 
 class LoginSerializer(serializers.Serializer):
+    """
+    A serializer for handling user login. It validates the user's credentials (username and password),
+    checks the existence of the username, and authenticates the user. If the credentials are incorrect,
+    it raises a validation error with details of the failure.
+    """
     username = serializers.CharField(required=True)
     password = serializers.CharField(write_only=True)
 
@@ -21,7 +26,7 @@ class LoginSerializer(serializers.Serializer):
 
         if user is None:
             raise serializers.ValidationError(
-                {"password": ["Das Passwort ist falsch."]}
+                {"details": ["Falsche Anmeldedaten."]}
             )
 
         data["user"] = user
@@ -29,6 +34,11 @@ class LoginSerializer(serializers.Serializer):
 
 
 class RegistrationSerializer(serializers.ModelSerializer):
+    """
+    A serializer for registering new users. It handles data validation for user creation including checking username uniqueness,
+    matching password with repeated password, and email uniqueness. Upon successful validation, it saves the new user and
+    creates a related user profile with additional attributes like type.
+    """
     repeated_password = serializers.CharField(write_only=True)
     type = serializers.CharField(write_only=True)
 
